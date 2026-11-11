@@ -1,0 +1,267 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#f4f0e8">
+  <title>Mastermind — À vous de jouer</title>
+  <style>
+    :root { color-scheme: light; --ink:#20251f; --muted:#626a75; --paper:#dfe2e8; --card:#f8f9fc; --line:#cbd0d9; --green:#496b50; --green-dark:#35523b; --gold:#e9bd68; }
+    * { box-sizing:border-box }
+    body { margin:0; min-height:100vh; padding:32px 18px; display:grid; place-items:center; background:radial-gradient(ellipse at 50% 0%,#f5f6f8 0,var(--paper) 68%); color:var(--ink); font-family:ui-rounded,"Avenir Next",Avenir,system-ui,sans-serif }
+    main { width:min(100%,520px); text-align:center }
+    .eyebrow { margin:0 0 9px; color:var(--green); font-size:.74rem; font-weight:800; letter-spacing:.19em; text-transform:uppercase }
+    h1 { margin:0; font-size:clamp(2.7rem,9vw,4rem); line-height:1; letter-spacing:-.055em; text-transform:uppercase; color:transparent; background:linear-gradient(180deg,#32445f 0%,#40c4ce 9%,#123d80 19%,#a9d9ef 27%,#9e36a9 37%,#482070 47%,#d3a8e6 55%,#aa7613 66%,#a82455 77%,#b5d9f2 86%,#167b5e 95%,#103b76 100%); background-clip:text; -webkit-background-clip:text; -webkit-text-fill-color:transparent; filter:drop-shadow(0 2px 0 #27334888) drop-shadow(0 5px 7px #202a3a38) }
+    .intro { margin:13px 0 25px; color:var(--muted) }
+    .game-card { padding:clamp(20px,6vw,30px); border:1px solid #e7e3d9; border-radius:28px; background:color-mix(in srgb,var(--card) 93%,transparent); box-shadow:0 18px 55px #4b483b12,0 3px 10px #4b483b08 }
+    .status { min-height:32px; margin:0 0 18px; font-size:1.1rem; font-weight:750; letter-spacing:-.025em }
+    .palette-label,.section-label { margin:16px 0 10px; color:var(--muted); font-size:.88rem; font-weight:700 }
+    .palette { display:flex; justify-content:center; flex-wrap:wrap; gap:10px; margin:0 auto 19px }
+    .color-choice { width:39px; height:39px; border:2px solid #ffffffdf; border-radius:50%; background:radial-gradient(circle at 27% 21%,#ffffff 0 5%,#ffffffb8 10%,transparent 26%),radial-gradient(circle at 40% 34%,color-mix(in srgb,var(--ball-color) 48%,white),var(--ball-color) 58%,color-mix(in srgb,var(--ball-color) 48%,black) 88%,#263344 100%); box-shadow:inset -2px -3px 4px #1019233b,inset 2px 2px 4px #ffffffbd,0 3px 5px #252b3542,0 0 0 1px #7e8998; cursor:pointer; transition:transform .15s,box-shadow .15s }
+    .color-choice:hover { transform:translateY(-2px) scale(1.06) }
+    .color-choice[aria-pressed="true"] { box-shadow:0 0 0 3px var(--gold); transform:scale(1.08) }
+    .color-choice:focus-visible,.slot:focus-visible,.action:focus-visible { outline:3px solid var(--gold); outline-offset:3px }
+    .board { display:grid; gap:8px; width:min(100%,390px); margin:0 auto 20px; text-align:left }
+    .row { min-height:56px; display:grid; grid-template-columns:1fr 35px 40px; align-items:center; gap:8px; padding:5px 9px; border:1px solid var(--line); border-radius:15px; background:#f8f7f1 }
+    .row.current { background:#f0f2e9; border-color:#b9c6b5 }
+    .slots { display:flex; justify-content:center; gap:clamp(7px,2.8vw,13px) }
+    .slot { display:block; flex:0 0 clamp(32px,9vw,42px); width:clamp(32px,9vw,42px); height:clamp(32px,9vw,42px); padding:0; border:2px dashed #cbd0c3; border-radius:50%; background:#fffdf8; cursor:pointer }
+    .slot.filled { border:2px solid #ffffffdf; background:radial-gradient(circle at 27% 21%,#ffffff 0 5%,#ffffffb8 10%,transparent 26%),radial-gradient(circle at 40% 34%,color-mix(in srgb,var(--ball-color) 48%,white),var(--ball-color) 58%,color-mix(in srgb,var(--ball-color) 48%,black) 88%,#263344 100%); box-shadow:inset -2px -3px 4px #1019233b,inset 2px 2px 4px #ffffffbd,0 3px 5px #252b3542 }
+    .feedback { display:grid; grid-template-columns:repeat(2,10px); grid-template-rows:repeat(2,10px); justify-content:center; gap:4px }
+    .peg { width:10px; height:10px; border:1px solid #aeb3a8; border-radius:50%; background:transparent }
+    .peg.exact { background:#30362f; border-color:#30362f }
+    .peg.misplaced { background:#fff; border-color:#73796f }
+    .row-number { color:#8a9085; font-size:.72rem; font-weight:750; text-align:right; white-space:nowrap }
+    .result-callout { min-height:24px; margin:0 0 14px; color:var(--green-dark); font-size:.94rem; font-weight:750 }
+    .answer-reveal { display:none; align-items:center; justify-content:center; gap:8px; margin:0 0 16px; color:var(--muted); font-size:.88rem; font-weight:700 }
+    .answer-reveal.visible { display:flex }
+    .answer-dot { width:22px; height:22px; border:1px solid #ffffffdf; border-radius:50%; background:radial-gradient(circle at 27% 21%,#ffffff 0 5%,#ffffffb8 10%,transparent 26%),radial-gradient(circle at 40% 34%,color-mix(in srgb,var(--ball-color) 48%,white),var(--ball-color) 58%,color-mix(in srgb,var(--ball-color) 48%,black) 88%,#263344 100%); box-shadow:inset -2px -3px 4px #1019233b,inset 1px 1px 3px #ffffffbd,0 2px 4px #252b3542 }
+    .actions { display:flex; justify-content:center; gap:10px; flex-wrap:wrap }
+    .action { min-height:46px; padding:0 20px; border:0; border-radius:999px; background:var(--green); color:white; font:inherit; font-size:.92rem; font-weight:750; cursor:pointer; transition:background .15s,transform .15s }
+    .action:hover:enabled { background:var(--green-dark); transform:translateY(-1px) }
+    .action.secondary { background:#e9e9df; color:#40483e }
+    .action.secondary:hover { background:#dfe2d6 }
+    .action:disabled { opacity:.45; cursor:not-allowed }
+    .hint { margin:18px 0 0; color:#81877c; font-size:.82rem; line-height:1.5 }
+    .legend { display:flex; justify-content:center; gap:15px; flex-wrap:wrap; margin:13px 0 0; color:#73796f; font-size:.78rem }
+    .legend span { display:inline-flex; align-items:center; gap:6px }
+    .legend .peg { display:inline-block }
+    .end-popup { width:min(calc(100% - 32px),390px); padding:30px 24px 24px; border:1px solid #cbd0d9; border-radius:24px; background:#f8f9fc; color:var(--ink); text-align:center; box-shadow:0 22px 70px #18243b55 }
+    .end-popup::backdrop { background:#18243b88; backdrop-filter:blur(3px) }
+    .end-popup h2 { margin:0 0 10px; font-size:1.55rem }
+    .end-popup p { margin:0 0 22px; color:var(--muted); line-height:1.5 }
+    @media (prefers-reduced-motion:reduce) { *,*::before,*::after { transition:none!important } }
+  </style>
+</head>
+<body>
+  <main>
+    <p class="eyebrow">À vous de jouer</p>
+    <h1>Mastermind</h1>
+    <p class="intro">Trouvez la combinaison secrète en 10 essais.</p>
+    <section class="game-card" aria-label="Jeu de Mastermind">
+      <p class="status" id="status" aria-live="polite">Le code secret est caché. Composez une proposition de 4 couleurs.</p>
+      <p class="hint">Choisissez une couleur, puis cliquez sur une encoche de la ligne active. Complétez les 4 encoches pour recevoir automatiquement les indices. Les couleurs peuvent se répéter.</p>
+      <div class="legend" aria-label="Légende des indices">
+        <span><i class="peg exact"></i> bonne couleur, bonne place</span>
+        <span><i class="peg misplaced"></i> bonne couleur, mauvaise place</span>
+      </div>
+      <p class="palette-label">Votre couleur</p>
+      <div class="palette" id="palette" aria-label="Palette de couleurs"></div>
+      <div class="board" id="board" aria-label="Historique des essais"></div>
+      <p class="result-callout" id="result" aria-live="polite"></p>
+      <p class="answer-reveal" id="answer" aria-live="polite"></p>
+      <div class="actions">
+        <button class="action secondary" id="reset" type="button">Nouvelle partie</button>
+      </div>
+    </section>
+    <dialog class="end-popup" id="end-popup" aria-labelledby="popup-title" aria-describedby="popup-message">
+      <h2 id="popup-title">Fin de partie</h2>
+      <p id="popup-message"></p>
+      <button class="action" id="close-popup" type="button">Voir la réponse</button>
+    </dialog>
+  </main>
+  <script>
+    const colors = [
+      { id:'rouge', name:'Rouge', value:'#df3f4b' }, { id:'bleu', name:'Bleu', value:'#2875d3' },
+      { id:'jaune', name:'Jaune', value:'#e6bd4f' }, { id:'vert', name:'Vert', value:'#5d9b6a' },
+      { id:'violet', name:'Violet', value:'#8149b9' }, { id:'orange', name:'Orange', value:'#e58b4b' }
+    ];
+    const apiColors = ['rouge', 'bleu', 'vert', 'jaune', 'orange', 'violet'];
+    const testMode = new URLSearchParams(window.location.search).get('test') === '1';
+    const palette = document.querySelector('#palette');
+    const boardEl = document.querySelector('#board');
+    const statusEl = document.querySelector('#status');
+    const resultEl = document.querySelector('#result');
+    const answerEl = document.querySelector('#answer');
+    const endPopup = document.querySelector('#end-popup');
+    const popupMessage = document.querySelector('#popup-message');
+    let secret = null, guesses = [], selectedColor = 0, finished = false;
+    let draft = [null, null, null, null];
+    let gameStatus = 'not-started';
+    let lastError = null;
+
+    function makeSecret() { return Array.from({length:4}, () => Math.floor(Math.random() * colors.length)); }
+    function buildPalette() {
+      palette.innerHTML = '';
+      colors.forEach((color, index) => {
+        const button = document.createElement('button');
+        button.type = 'button'; button.className = 'color-choice'; button.style.setProperty('--ball-color', color.value);
+        button.setAttribute('aria-label', color.name); button.setAttribute('aria-pressed', String(index === selectedColor));
+        button.addEventListener('click', () => { selectedColor = index; buildPalette(); });
+        palette.append(button);
+      });
+    }
+    function renderBoard() {
+      boardEl.innerHTML = '';
+      for (let rowIndex = 0; rowIndex < 10; rowIndex++) {
+        const row = document.createElement('div');
+        row.className = `row${rowIndex === guesses.length && gameStatus === 'playing' ? ' current' : ''}`;
+        const slots = document.createElement('div'); slots.className = 'slots';
+        const guess = guesses[rowIndex];
+        for (let slotIndex = 0; slotIndex < 4; slotIndex++) {
+          const slot = document.createElement('button'); slot.type = 'button'; slot.className = 'slot';
+          if (guess && guess.colors[slotIndex] !== null) { slot.classList.add('filled'); slot.style.setProperty('--ball-color', colors[guess.colors[slotIndex]].value); }
+          else if (!guess && rowIndex === guesses.length && !finished && draft[slotIndex] !== null) { slot.classList.add('filled'); slot.style.setProperty('--ball-color', colors[draft[slotIndex]].value); }
+          slot.setAttribute('aria-label', `Essai ${rowIndex+1}, case ${slotIndex+1}${guess && guess.colors[slotIndex] !== null ? `, ${colors[guess.colors[slotIndex]].name}` : ''}`);
+          slot.disabled = gameStatus !== 'playing' || finished || Boolean(guess) || rowIndex !== guesses.length;
+          slot.addEventListener('click', () => {
+            if (selectedColor !== null) {
+              draft[slotIndex] = selectedColor;
+              if (draft.every(color => color !== null)) commitGuess(draft);
+              else renderBoard();
+            }
+          });
+          slots.append(slot);
+        }
+        const feedback = document.createElement('div'); feedback.className = 'feedback'; feedback.setAttribute('aria-label', guess ? `${guess.result.wellPlaced} bien placées, ${guess.result.misplaced} mal placées` : '');
+        if (guess) for (let i=0; i<guess.result.wellPlaced; i++) { const peg=document.createElement('i'); peg.className='peg exact'; feedback.append(peg); }
+        if (guess) for (let i=0; i<guess.result.misplaced; i++) { const peg=document.createElement('i'); peg.className='peg misplaced'; feedback.append(peg); }
+        const number = document.createElement('span'); number.className='row-number'; number.textContent = `${rowIndex+1}/10`;
+        row.append(slots, feedback, number); boardEl.append(row);
+      }
+    }
+    function score(attempt) {
+      let wellPlaced = 0; const remainingSecret = [], remainingAttempt = [];
+      attempt.forEach((color, i) => { if (color === secret[i]) wellPlaced++; else { remainingSecret.push(secret[i]); remainingAttempt.push(color); } });
+      let misplaced = 0;
+      remainingAttempt.forEach(color => { const index = remainingSecret.indexOf(color); if (index !== -1) { misplaced++; remainingSecret.splice(index,1); } });
+      return { wellPlaced, misplaced };
+    }
+    function startGameWithSecret(secretColors) {
+      secret = [...secretColors]; guesses = []; draft = [null,null,null,null]; selectedColor = 0;
+      finished = false; gameStatus = 'playing'; lastError = null;
+      statusEl.textContent = 'Le code secret est caché. Composez une proposition de 4 couleurs.';
+      resultEl.textContent = '';
+      answerEl.classList.remove('visible'); answerEl.replaceChildren();
+      if (endPopup.open) endPopup.close();
+      buildPalette(); renderBoard();
+    }
+    function commitGuess(attempt) {
+      if (gameStatus !== 'playing' || finished || attempt.some(color => color === null)) return null;
+      const result = score(attempt);
+      guesses.push({ colors:[...attempt], result }); draft = [null,null,null,null]; lastError = null;
+      const secretNames = secret.map(index => colors[index].name).join(' – ');
+      resultEl.textContent = result.wellPlaced === 0 && result.misplaced === 0
+        ? 'Aucun pion de contrôle : aucune couleur correcte.'
+        : `${result.wellPlaced} pion${result.wellPlaced > 1 ? 's' : ''} noir${result.wellPlaced > 1 ? 's' : ''} (bonne couleur, bonne place) · ${result.misplaced} pion${result.misplaced > 1 ? 's' : ''} blanc${result.misplaced > 1 ? 's' : ''} (bonne couleur, mauvaise place).`;
+      if (result.wellPlaced === 4) {
+        finished = true; gameStatus = 'won';
+        statusEl.textContent = `Bravo, combinaison trouvée en ${guesses.length} essai${guesses.length > 1 ? 's' : ''} ! Réponse : ${secretNames}.`;
+      } else if (guesses.length >= 10) {
+        finished = true; gameStatus = 'lost';
+        statusEl.textContent = `Toutes les tentatives sont utilisées. La bonne réponse était : ${secretNames}.`;
+      } else statusEl.textContent = `Essai ${guesses.length} sur 10 · composez la proposition suivante.`;
+      if (finished) {
+        answerEl.classList.add('visible');
+        answerEl.replaceChildren(document.createTextNode(`Réponse : ${secretNames}`));
+        secret.forEach(index => {
+          const dot = document.createElement('span');
+          dot.className = 'answer-dot'; dot.style.setProperty('--ball-color', colors[index].value);
+          dot.setAttribute('aria-label', colors[index].name); dot.title = colors[index].name;
+          answerEl.append(dot);
+        });
+        popupMessage.textContent = result.wellPlaced === 4
+          ? 'Victoire ! Tu as trouvé la bonne combinaison !'
+          : 'Dommage, tu feras mieux la prochaine fois.';
+        endPopup.showModal();
+      }
+      renderBoard();
+      return result;
+    }
+    function makeApiError(code, message) { const error = new Error(message); error.code = code; return error; }
+    function validateColorArray(value) {
+      if (!Array.isArray(value))
+        return { code:'invalid-type', message:'La liste des couleurs doit être un tableau dense de chaînes.' };
+      for (let index = 0; index < value.length; index++) {
+        if (!Object.prototype.hasOwnProperty.call(value, index) || typeof value[index] !== 'string')
+          return { code:'invalid-type', message:'La liste des couleurs doit être un tableau dense de chaînes.' };
+      }
+      if (value.length !== 4) return { code:'invalid-length', message:'La combinaison doit contenir exactement quatre couleurs.' };
+      if (value.some(color => !apiColors.includes(color))) return { code:'invalid-color', message:'La couleur proposée n’est pas autorisée.' };
+      return null;
+    }
+    function getPublicState() {
+      const history = guesses.map(entry => ({
+        guess:entry.colors.map(index => colors[index].id),
+        result:{ wellPlaced:entry.result.wellPlaced, misplaced:entry.result.misplaced }
+      }));
+      const last = history.at(-1) || null;
+      return {
+        status:gameStatus, attempts:history.length, history,
+        lastGuess:last ? [...last.guess] : null,
+        lastResult:last ? {...last.result} : null,
+        lastError:lastError ? {...lastError} : null
+      };
+    }
+    async function apiStartGame(options) {
+      let chosenSecret;
+      if (options !== undefined) {
+        const isPlainObject = options !== null && typeof options === 'object' && !Array.isArray(options) &&
+          Object.getPrototypeOf(options) === Object.prototype;
+        if (!isPlainObject || Reflect.ownKeys(options).some(key => key !== 'secret'))
+          throw makeApiError('invalid-options', 'Les options doivent être un objet contenant uniquement secret.');
+        if (Object.prototype.hasOwnProperty.call(options, 'secret')) {
+          const invalid = validateColorArray(options.secret);
+          if (invalid) throw makeApiError(invalid.code, invalid.message);
+          chosenSecret = options.secret.map(color => colors.findIndex(item => item.id === color));
+        }
+      }
+      startGameWithSecret(chosenSecret || makeSecret());
+      return getPublicState();
+    }
+    async function apiSubmitGuess(guess) {
+      let invalid = null;
+      if (gameStatus === 'not-started') invalid = { code:'game-not-started', message:'Aucune partie n’a encore été démarrée.' };
+      else if (gameStatus === 'won' || gameStatus === 'lost') invalid = { code:'game-finished', message:'Cette partie est terminée.' };
+      else invalid = validateColorArray(guess);
+      if (invalid) {
+        lastError = invalid;
+        if (gameStatus === 'playing') {
+          statusEl.textContent = invalid.message;
+          resultEl.textContent = 'Cette proposition n’a pas été comptée.';
+        }
+        return getPublicState();
+      }
+      const indices = guess.map(color => colors.findIndex(item => item.id === color));
+      draft = [...indices];
+      commitGuess(indices);
+      return getPublicState();
+    }
+    document.querySelector('#reset').addEventListener('click', () => { apiStartGame(); });
+    document.querySelector('#close-popup').addEventListener('click', () => endPopup.close());
+    buildPalette();
+    if (testMode) {
+      statusEl.textContent = 'Mode test prêt. Démarrez une partie pour jouer.';
+      renderBoard();
+      window.codeSecretTest = {
+        version:'0.2',
+        getConfig:() => ({ apiVersion:'0.2', rulesVersion:'code-couleurs-1.0', secretLength:4, maxAttempts:10, allowDuplicates:true, colors:[...apiColors] }),
+        startGame:apiStartGame,
+        submitGuess:apiSubmitGuess,
+        getState:getPublicState
+      };
+    } else startGameWithSecret(makeSecret());
+  </script>
+</body>
+</html>
+
