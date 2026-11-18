@@ -74,7 +74,7 @@ Ces cas donnent des résultats reproductibles avec `startGame({ secret: [...] })
 | rouge, rouge, bleu, vert | rouge, rouge, bleu, vert | 4 | 0 | Oui |
 | rouge, rouge, rouge, rouge | bleu, bleu, bleu, bleu | 0 | 0 | Oui |
 
-Le contrat prévoit aussi une victoire au dixième essai, une défaite après dix essais sans code exact, le refus d’une proposition invalide sans modifier le compteur et le redémarrage depuis un état final.
+Le contrat prévoit aussi une victoire au dixième essai, une défaite après dix essais sans code exact, le refus d’une proposition invalide sans modifier le compteur et le redémarrage depuis un état final. Le résultat s'affiche avec un Pop-up écrivant "Bravo" ou "Fin de la partie, dommage tu feras mieux la prochaine fois". Suite à cela il y a la bonne réponse qui s'affiche.
 
 ## Lancer le jeu
 
