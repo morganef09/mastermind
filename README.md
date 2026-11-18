@@ -99,7 +99,10 @@ Luca, Nathan et Muna ont testé mon jeu grâce au lien que je leurs ai envoyé.
 Jeu testé sur Iphone et cela fonctionne.
 
 ### Appareil
+
 Le jeu à été testé sur un Huawei sur le navigateur Chrome ainsi que sur un Asus sur le navigateur Internet Explorer et sur un Asus en navigateur Firfox.
 
+### Limites
 
+Les tests lorsque l'on fait le jeu pourrait être plus rapide à l'aide d'exemple avec seulement 3 essais au lieu de 10 cela faciliterai au niveau du temps.
 
