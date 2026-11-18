@@ -68,11 +68,11 @@ Les refus de `submitGuess()` ne consomment pas d’essai : l’appel résout ver
 
 Ces cas donnent des résultats reproductibles avec `startGame({ secret: [...] })` :
 
-| Code secret | Proposition | Bien placées | Mal placées 
-| --- | --- | ---: | ---: | 
-| rouge, rouge, bleu, vert | rouge, bleu, rouge, rouge | 1 | 2 |
-| rouge, rouge, bleu, vert | rouge, rouge, bleu, vert | 4 | 0 |
-| rouge, rouge, rouge, rouge | bleu, bleu, bleu, bleu | 0 | 0 |
+| Code secret | Proposition | Bien placées | Mal placées | Conforme
+| --- | --- | ---: | ---: | ---- |
+| rouge, rouge, bleu, vert | rouge, bleu, rouge, rouge | 1 | 2 | Oui |
+| rouge, rouge, bleu, vert | rouge, rouge, bleu, vert | 4 | 0 | Oui |
+| rouge, rouge, rouge, rouge | bleu, bleu, bleu, bleu | 0 | 0 | Oui |
 
 Le contrat prévoit aussi une victoire au dixième essai, une défaite après dix essais sans code exact, le refus d’une proposition invalide sans modifier le compteur et le redémarrage depuis un état final.
 
