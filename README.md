@@ -82,7 +82,7 @@ Ouvrir `index.html` dans un navigateur. Pour le publier sur GitHub Pages, publie
 
 ## Vérification
 
-Aucun résultat de test manuel ou automatisé n’est consigné ici pour la version actuelle. Après un essai, noter la version ou le commit, le comportement vérifié, le résultat attendu, le résultat observé et les limites rencontrées.
+Vérification effectuée pour cette publication : la page GitHub Pages a été ouverte et son écran de jeu, sa palette et ses contrôles étaient visibles ; GitHub confirme la source `main` (`/(root)`). Le déroulement d’une partie, le calcul des indices et l’API `?test=1` n’ont pas été retestés. Après un essai, noter la version ou le commit, le comportement vérifié, le résultat attendu, le résultat observé et les limites rencontrées.
 
 ### Choix avec codex
 
