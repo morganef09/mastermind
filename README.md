@@ -68,8 +68,8 @@ Les refus de `submitGuess()` ne consomment pas d’essai : l’appel résout ver
 
 Ces cas donnent des résultats reproductibles avec `startGame({ secret: [...] })` :
 
-| Code secret | Proposition | Bien placées | Mal placées |
-| --- | --- | ---: | ---: |
+| Code secret | Proposition | Bien placées | Mal placées 
+| --- | --- | ---: | ---: | 
 | rouge, rouge, bleu, vert | rouge, bleu, rouge, rouge | 1 | 2 |
 | rouge, rouge, bleu, vert | rouge, rouge, bleu, vert | 4 | 0 |
 | rouge, rouge, rouge, rouge | bleu, bleu, bleu, bleu | 0 | 0 |
@@ -83,4 +83,23 @@ Ouvrir `index.html` dans un navigateur. Pour le publier sur GitHub Pages, publie
 ## Vérification
 
 Aucun résultat de test manuel ou automatisé n’est consigné ici pour la version actuelle. Après un essai, noter la version ou le commit, le comportement vérifié, le résultat attendu, le résultat observé et les limites rencontrées.
+
+### Choix avec codex
+
+- Je lui ai fais modifié les couleurs des billes en leurs ajoutant un reflet.
+- Je lui ai fais générer mon jeu grâce à un modèle de jeu en ligne
+- J'ai ajouté l'API à l'aide de codex
+
+### Certification des camarades
+
+Luca, Nathan et Muna ont testé mon jeu grâce au lien que je leurs ai envoyé.
+
+### Smartphone
+
+Jeu testé sur Iphone et cela fonctionne.
+
+### Appareil
+Le jeu à été testé sur un Huawei sur le navigateur Chrome ainsi que sur un Asus sur le navigateur Internet Explorer et sur un Asus en navigateur Firfox.
+
+
 
